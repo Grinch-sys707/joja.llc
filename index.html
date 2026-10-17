@@ -1,0 +1,419 @@
+<!DOCTYPE html>
+<html lang="uz">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+  <title>Jo'ja Learning - Bolalar uchun Quvnoq Ingliz Tili! 🐥</title>
+  <meta name="description" content="Jo'ja Learning - 5 yoshdan 10 yoshgacha bo'lgan bolalar uchun mo'ljallangan, Duolingo kabi o'yinlashtirilgan, sehirli ingliz tili o'rganish platformasi.">
+  <link rel="icon" type="image/jpeg" href="assets/joja_logo.jpg">
+
+  <!-- Google Fonts: Fredoka & Nunito -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Fredoka:wght@400;500;600;700&family=Nunito:wght@400;600;700;800;900&display=swap" rel="stylesheet">
+
+  <link rel="stylesheet" href="css/style.css">
+</head>
+<body>
+
+  <!-- Top Navigation & Stats Bar -->
+  <header class="app-header">
+    <div class="logo-section" onclick="window.app.switchView('path')">
+      <img src="assets/joja_logo.jpg" alt="Jo'ja Learning Mascot" class="logo-img">
+      <div class="brand-text">
+        <h1>Jo'ja <span class="highlight">Learning</span> 🐥</h1>
+        <span class="tagline" data-i18n="tagline">Bolalar uchun quvnoq ingliz tili!</span>
+      </div>
+    </div>
+
+    <!-- Live Player Stats -->
+    <div class="stats-bar">
+      <!-- Streak -->
+      <div class="stat-pill streak" title="Kunlik olov / Streak">
+        <span class="flame-icon">🔥</span>
+        <span id="stat-streak-val">1</span>
+      </div>
+
+      <!-- Jo'ja Seeds / Donlar -->
+      <div class="stat-pill seeds" title="Jo'ja donlari / Seeds" onclick="window.app.switchView('shop')">
+        <span>🌾</span>
+        <span id="stat-seeds-val">50</span>
+      </div>
+
+      <!-- Hearts / Jonlar -->
+      <div class="stat-pill hearts" title="Jonlar / Hearts" onclick="window.app.refillHeartsByPractice()">
+        <span class="heart-icon">❤️</span>
+        <span id="stat-hearts-val">5</span>
+      </div>
+
+      <!-- XP -->
+      <div class="stat-pill xp" title="Ball / XP">
+        <span>⚡</span>
+        <span id="stat-xp-val">0</span>
+      </div>
+    </div>
+
+    <!-- Header Controls: Language & Audio -->
+    <div class="header-controls">
+      <!-- Language Selector -->
+      <button class="lang-selector-btn" id="lang-toggle-btn">
+        <span id="current-lang-name">🇺🇿 O'zbek</span>
+        <span style="font-size: 0.75rem;">▼</span>
+      </button>
+
+      <div class="lang-menu-dropdown" id="lang-dropdown-menu" style="display: none;">
+        <button class="lang-option" data-lang="uz">🇺🇿 O'zbekcha</button>
+        <button class="lang-option" data-lang="ru">🇷🇺 Русский</button>
+        <button class="lang-option" data-lang="en">🇬🇧 English</button>
+      </div>
+
+      <!-- Turtle Slow Speech Toggle -->
+      <button class="icon-control-btn" id="turtle-toggle-btn" title="Toshbaqa rejimi: Sekin talaffuz">🐢</button>
+
+      <!-- Sound Toggle -->
+      <button class="icon-control-btn active" id="sound-toggle-btn" title="Ovozni yoqish / o'chirish">🔊</button>
+    </div>
+  </header>
+
+  <!-- Main App Shell -->
+  <main class="app-shell">
+    <!-- Sidebar Navigation -->
+    <nav class="app-sidebar">
+      <button class="nav-item-btn active" data-target="path">
+        <span class="nav-icon">🗺️</span>
+        <span data-i18n="navHome">Sarguzasht</span>
+      </button>
+
+      <button class="nav-item-btn" data-target="feed-game">
+        <span class="nav-icon">🍎</span>
+        <span data-i18n="navGame">Jo'jani Boqish</span>
+      </button>
+
+      <button class="nav-item-btn" data-target="shop">
+        <span class="nav-icon">🎩</span>
+        <span data-i18n="navShop">Jo'ja Kiyintirish</span>
+      </button>
+
+      <button class="nav-item-btn" data-target="parent">
+        <span class="nav-icon">📊</span>
+        <span data-i18n="navParents">Ota-onalar</span>
+      </button>
+
+      <button class="nav-item-btn" data-target="certificate">
+        <span class="nav-icon">🏆</span>
+        <span data-i18n="navCertificate">Diplom</span>
+      </button>
+    </nav>
+
+    <!-- Main Content Area -->
+    <div class="app-content">
+
+      <!-- ========================================== -->
+      <!-- VIEW 1: ADVENTURE QUEST MAP (PATH)         -->
+      <!-- ========================================== -->
+      <section class="view-section active" id="view-path">
+        <div class="path-container" id="path-units-container">
+          <!-- Dynamically populated with units & winding stepping stones -->
+        </div>
+
+        <!-- Floating Mascot on Home Screen -->
+        <div class="home-mascot-card" id="home-floating-mascot">
+          <div id="home-mascot-box"></div>
+          <span style="font-size: 0.75rem; color: #94A3B8; font-weight: 700; margin-top: 4px;">Meni bosing! 🐥</span>
+        </div>
+      </section>
+
+      <!-- ========================================== -->
+      <!-- VIEW 2: FEED JO'JA MINI-GAME               -->
+      <!-- ========================================== -->
+      <section class="view-section" id="view-feed-game">
+        <div class="feed-game-container">
+          <div class="game-score-banner">
+            <span data-i18n="gameScore">Boqilgan marta:</span>
+            <span id="feed-score-val" style="color: #D97706; font-size: 1.5rem;">0</span>
+            <span>⭐</span>
+          </div>
+
+          <div class="feed-stage">
+            <div class="feed-target-zone">
+              <span data-i18n="gameJojaSays">Jo'ja xohlaydi:</span>
+              <span id="game-target-food-name" style="cursor: pointer; color: #0284C7;">...</span>
+            </div>
+
+            <!-- Mascot in the stage -->
+            <div id="game-mascot-box"></div>
+
+            <!-- Choices to feed -->
+            <div class="food-items-row" id="food-options-row">
+              <!-- Draggable food options -->
+            </div>
+          </div>
+
+          <p style="color: #64748B; font-weight: 600; text-align: center;" data-i18n="gameSubtitle">
+            Jo'ja och qoldi! U xohlagan so'z/taomni uning tumshug'iga bosing yoki sudrang!
+          </p>
+        </div>
+      </section>
+
+      <!-- ========================================== -->
+      <!-- VIEW 3: JO'JA WARDROBE & SHOP              -->
+      <!-- ========================================== -->
+      <section class="view-section" id="view-shop">
+        <div class="shop-container">
+          <div class="shop-stage-card">
+            <div id="shop-mascot-preview"></div>
+            <h3 style="margin-top: 14px; font-size: 1.3rem; color: #1E293B;" data-i18n="shopTitle">Jo'jani Kiyintirish 🎩👑</h3>
+            <p style="color: #64748B; font-size: 0.95rem; margin-top: 4px;" data-i18n="shopSubtitle">
+              To'plagan donlaringizga Jo'jangizga ajoyib kiyim va aksessuarlar oling!
+            </p>
+            <div style="margin-top: 12px; font-weight: 800; color: #B45309; font-size: 1.1rem;">
+              <span data-i18n="yourSeeds">Sizning donlaringiz:</span> <span id="shop-user-seeds">50</span> 🌾
+            </div>
+          </div>
+
+          <!-- Items Grid -->
+          <div class="shop-items-grid" id="shop-items-container">
+            <!-- Dynamically populated items -->
+          </div>
+        </div>
+      </section>
+
+      <!-- ========================================== -->
+      <!-- VIEW 4: PARENT DASHBOARD                   -->
+      <!-- ========================================== -->
+      <section class="view-section" id="view-parent">
+        <div class="parent-dashboard-container">
+          <div>
+            <h2 style="font-size: 1.8rem; font-weight: 800; color: #1E293B;" data-i18n="parentTitle">Ota-onalar Uchun Hisobot 📊</h2>
+            <p style="color: #64748B; font-size: 1rem; margin-top: 4px;" data-i18n="parentSubtitle">
+              Farzandingizning ingliz tili bo'yicha yutuqlari va o'sish statistikasi.
+            </p>
+          </div>
+
+          <!-- Child Name Edit -->
+          <div style="background: #FFFFFF; border: 2px solid #E2E8F0; border-radius: 20px; padding: 20px; display: flex; align-items: center; gap: 14px; flex-wrap: wrap;">
+            <label style="font-weight: 700; font-size: 1.05rem;" data-i18n="childName">Farzandingiz ismi:</label>
+            <input type="text" id="parent-child-name-input" style="flex: 1; min-width: 180px; padding: 10px 16px; border: 2px solid #CBD5E1; border-radius: 12px; font-family: var(--font-kids); font-size: 1.1rem; font-weight: 700;" value="Azizbek">
+            <button class="btn-3d btn-3d-blue" id="save-child-name-btn" data-i18n="changeName">Saqlash</button>
+          </div>
+
+          <!-- Stats Cards -->
+          <div class="stats-grid-dashboard">
+            <div class="dash-card">
+              <span style="font-size: 2rem;">📚</span>
+              <span class="stat-num" id="dash-words-learned-val">0</span>
+              <span class="stat-desc" data-i18n="statWordsLearned">O'rganilgan so'zlar</span>
+            </div>
+
+            <div class="dash-card">
+              <span style="font-size: 2rem;">✅</span>
+              <span class="stat-num" id="dash-lessons-done-val">0</span>
+              <span class="stat-desc" data-i18n="statLessonsDone">Tugallangan darslar</span>
+            </div>
+
+            <div class="dash-card">
+              <span style="font-size: 2rem;">🔥</span>
+              <span class="stat-num" id="dash-streak-days-val">1</span>
+              <span class="stat-desc" data-i18n="statStreakDays">Kunlik davomiylik</span>
+            </div>
+
+            <div class="dash-card">
+              <span style="font-size: 2rem;">⚡</span>
+              <span class="stat-num" id="dash-total-xp-val">0</span>
+              <span class="stat-desc" data-i18n="statTotalXP">Jami to'plangan XP</span>
+            </div>
+          </div>
+
+          <!-- Pedagogical Encouragement -->
+          <div style="background: #ECFDF5; border: 2px solid #A7F3D0; border-radius: 20px; padding: 20px; display: flex; align-items: center; gap: 16px;">
+            <span style="font-size: 2.5rem;">💡</span>
+            <p style="color: #065F46; font-size: 1.05rem; font-weight: 600;" data-i18n="parentEncouragement">
+              Farzandingiz har kuni 10 daqiqa shug'ullanishi til o'rganishda 5 barobar tezroq natija beradi!
+            </p>
+          </div>
+
+          <!-- Action Buttons -->
+          <div style="display: flex; gap: 16px; flex-wrap: wrap;">
+            <button class="btn-3d btn-3d-yellow" id="dash-print-cert-btn" style="flex: 1;" data-i18n="printCertificateBtn">
+              Diplomni Ko'rish / Chop Etish 🏆
+            </button>
+            <button class="btn-3d btn-3d-red" id="dash-reset-progress-btn" style="opacity: 0.85;" data-i18n="resetProgressBtn">
+              Natijalarni nollash
+            </button>
+          </div>
+        </div>
+      </section>
+
+      <!-- ========================================== -->
+      <!-- VIEW 5: DIPLOMA / CERTIFICATE VIEW         -->
+      <!-- ========================================== -->
+      <section class="view-section" id="view-certificate">
+        <div class="certificate-frame">
+          <span class="cert-corner-star top-left">⭐</span>
+          <span class="cert-corner-star top-right">⭐</span>
+          <span class="cert-corner-star bottom-left">⭐</span>
+          <span class="cert-corner-star bottom-right">⭐</span>
+
+          <img src="assets/joja_celebrate.jpg" alt="Jo'ja Champion" style="width: 110px; height: 110px; border-radius: 50%; border: 4px solid #F59E0B; margin-bottom: 12px; box-shadow: 0 6px 15px rgba(245, 158, 11, 0.3);">
+
+          <div class="cert-header">
+            <h2 data-i18n="certTitle">MAQTOR YORLIG'I & DIPLOM</h2>
+            <p style="font-weight: 700; color: #D97706; margin-top: 4px;">JO'JA LEARNING ACADEMY</p>
+          </div>
+
+          <p style="margin-top: 18px; font-size: 1.1rem; color: #475569;" data-i18n="certAwardedTo">
+            Ushbu diplom munosib taqdirlanadi:
+          </p>
+
+          <h1 class="cert-child-name" id="cert-student-name">Azizbek</h1>
+
+          <p class="cert-body-text" data-i18n="certReason">
+            Jo'ja Learning orqali ingliz tilini a'lo darajada o'zlashtirgani va bilimga chanqoqligi uchun!
+          </p>
+
+          <div class="cert-signatures">
+            <div style="text-align: left;">
+              <span data-i18n="certDate">Sana:</span>
+              <strong id="cert-issue-date">2026-09-28</strong>
+            </div>
+            <div style="text-align: right;">
+              <span data-i18n="certSign">Jo'ja ustoz imzosi 🐥</span>
+              <div style="font-family: cursive; font-size: 1.3rem; color: #0284C7; font-weight: 800;">Jo'ja Master</div>
+            </div>
+          </div>
+
+          <div style="margin-top: 28px; display: flex; gap: 14px;">
+            <button class="btn-3d btn-3d-green" id="cert-print-btn" data-i18n="certPrintBtn">Chop etish (Print) 🖨️</button>
+            <button class="btn-3d btn-3d-blue" id="cert-close-btn" data-i18n="certCloseBtn">Yopish</button>
+          </div>
+        </div>
+      </section>
+
+      <!-- ========================================== -->
+      <!-- VIEW 6: LESSON PLAY ARENA                  -->
+      <!-- ========================================== -->
+      <section class="view-section" id="view-lesson-play">
+        <div class="lesson-container">
+          <!-- Top bar with progress and chick walker -->
+          <div class="lesson-header-bar">
+            <button class="lesson-close-btn" onclick="window.app.switchView('path')" title="Chiqish">✕</button>
+            <div class="progress-track">
+              <div class="progress-fill" id="lesson-progress-fill">
+                <span class="progress-chick-walker" id="lesson-walker-chick">🐥</span>
+              </div>
+            </div>
+            <div class="lesson-hearts-meter">
+              <span>❤️</span>
+              <span id="lesson-hearts-val">5</span>
+            </div>
+          </div>
+
+          <!-- Dynamic Exercise Area -->
+          <div id="lesson-exercise-area">
+            <!-- Dynamically populated with question cards -->
+          </div>
+        </div>
+
+        <!-- Sticky Bottom Confirmation Drawer -->
+        <div class="lesson-footer-bar" id="lesson-footer-bar">
+          <div class="footer-content-inner">
+            <div id="lesson-feedback-box">
+              <!-- Feedback messages -->
+            </div>
+            <button class="btn-3d btn-3d-green disabled" id="lesson-check-btn" data-i18n="checkAnswer">
+              Tekshirish
+            </button>
+          </div>
+        </div>
+      </section>
+
+    </div>
+  </main>
+
+  <!-- ========================================== -->
+  <!-- MODAL: LESSON START PREVIEW               -->
+  <!-- ========================================== -->
+  <div class="modal-overlay" id="lesson-start-modal">
+    <div class="modal-box">
+      <img src="assets/joja_happy.jpg" alt="Jo'ja Welcoming" style="width: 110px; height: 110px; border-radius: 50%; border: 3px solid #FFD215;">
+      <h3 id="modal-lesson-title" style="font-size: 1.5rem; color: #1E293B;">Dars Nomi</h3>
+      <p style="color: #64748B; font-weight: 600;">Ushbu darsda biz quyidagi yangi so'zlarni o'rganamiz:</p>
+      
+      <div id="modal-lesson-words" style="display: flex; flex-wrap: wrap; gap: 8px; justify-content: center; margin: 8px 0;">
+        <!-- Words pills -->
+      </div>
+
+      <div style="display: flex; gap: 12px; width: 100%; margin-top: 10px;">
+        <button class="btn-3d btn-3d-green" id="modal-start-lesson-btn" style="flex: 1;" data-i18n="startLesson">
+          Darsni Boshlash! 🚀
+        </button>
+        <button class="btn-3d btn-3d-blue" onclick="document.getElementById('lesson-start-modal').classList.remove('active')" style="padding: 12px 18px;">
+          ✕
+        </button>
+      </div>
+    </div>
+  </div>
+
+  <!-- ========================================== -->
+  <!-- MODAL: LESSON VICTORY CELEBRATION          -->
+  <!-- ========================================== -->
+  <div class="modal-overlay" id="lesson-finish-modal">
+    <div class="modal-box">
+      <img src="assets/joja_celebrate.jpg" alt="Jo'ja Champion" style="width: 120px; height: 120px; border-radius: 50%; border: 4px solid #FFD215; box-shadow: 0 8px 25px rgba(255, 210, 21, 0.4);">
+      <h2 style="color: #166534; font-size: 1.7rem; font-weight: 900;" data-i18n="lessonFinished">
+        Dars Muvaffaqiyatli Yakunlandi! 🎉
+      </h2>
+
+      <!-- Stars -->
+      <div id="finish-stars-display" style="font-size: 2.6rem; margin: 4px 0;">
+        ⭐⭐⭐
+      </div>
+
+      <!-- Rewards -->
+      <div style="display: flex; gap: 20px; margin: 8px 0;">
+        <div style="background: #FFFDE7; border: 2px solid #FFE082; padding: 10px 18px; border-radius: 16px; font-weight: 800; font-size: 1.2rem; color: #B45309;" id="finish-seeds-display">
+          +25 🌾
+        </div>
+        <div style="background: #F0FDF4; border: 2px solid #BBF7D0; padding: 10px 18px; border-radius: 16px; font-weight: 800; font-size: 1.2rem; color: #15803D;" id="finish-xp-display">
+          +20 XP
+        </div>
+      </div>
+
+      <button class="btn-3d btn-3d-green" id="finish-modal-next-btn" style="width: 100%; margin-top: 12px; font-size: 1.2rem;">
+        Keyingi Darsga O'tish! 🚀
+      </button>
+      <button class="btn-3d btn-3d-blue" id="finish-modal-done-btn" style="width: 100%; margin-top: 8px;">
+        Sarguzasht Xaritasi 🗺️
+      </button>
+    </div>
+  </div>
+
+  <!-- ========================================== -->
+  <!-- MODAL: OUT OF HEARTS REFILL               -->
+  <!-- ========================================== -->
+  <div class="modal-overlay" id="out-of-hearts-modal">
+    <div class="modal-box">
+      <img src="assets/joja_thinking.jpg" alt="Jo'ja Caring" style="width: 110px; height: 110px; border-radius: 50%; border: 3px solid #F87171;">
+      <h3 style="color: #DC2626; font-size: 1.5rem;" data-i18n="outOfHeartsTitle">Jonlaring tugab qoldi!</h3>
+      <p style="color: #64748B; font-weight: 600;" data-i18n="outOfHeartsDesc">
+        Xavotir olma! Mashq qilish orqali bepul yangi jon yig'ib olishing mumkin!
+      </p>
+
+      <button class="btn-3d btn-3d-red" onclick="window.app.refillHeartsByPractice()" style="width: 100%; margin-top: 10px;" data-i18n="refillHeartsBtn">
+        Mashq qilib jon yig'ish ❤️❤️❤️❤️❤️
+      </button>
+      <button class="btn-3d btn-3d-blue" onclick="document.getElementById('out-of-hearts-modal').classList.remove('active')" style="width: 100%; margin-top: 6px;">
+        Keyinroq
+      </button>
+    </div>
+  </div>
+
+  <!-- Scripts -->
+  <script src="js/audio.js"></script>
+  <script src="js/confetti.js"></script>
+  <script src="js/translations.js"></script>
+  <script src="js/data.js"></script>
+  <script src="js/mascot.js"></script>
+  <script src="js/app.js"></script>
+</body>
+</html>
